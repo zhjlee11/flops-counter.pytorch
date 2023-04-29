@@ -27,7 +27,7 @@ def get_flops_pytorch(model, input_res,
     global CUSTOM_MODULES_MAPPING
     CUSTOM_MODULES_MAPPING = custom_modules_hooks
     flops_model = add_flops_counting_methods(model)
-    flops_model.eval()
+    #flops_model.eval()
     flops_model.start_flops_count(ost=ost, verbose=verbose,
                                   ignore_list=ignore_modules)
     if input_constructor:
