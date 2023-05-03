@@ -20,12 +20,12 @@ def upsample_flops_counter_hook(module, input, output):
     output_elements_count = batch_size
     for val in output_size.shape[1:]:
         output_elements_count *= val
-    module.__flops__ += int(output_elements_count)
+    module.__flops__ += output_elements_count
 
 
 def relu_flops_counter_hook(module, input, output):
     active_elements_count = output.numel()
-    module.__flops__ += int(active_elements_count)
+    module.__flops__ += active_elements_count
 
 
 def linear_flops_counter_hook(module, input, output):
@@ -33,12 +33,12 @@ def linear_flops_counter_hook(module, input, output):
     # pytorch checks dimensions, so here we don't care much
     output_last_dim = output.shape[-1]
     bias_flops = output_last_dim if module.bias is not None else 0
-    module.__flops__ += int(np.prod(input.shape) * output_last_dim + bias_flops)
+    module.__flops__ += np.prod(input.shape) * output_last_dim + bias_flops
 
 
 def pool_flops_counter_hook(module, input, output):
     input = input[0]
-    module.__flops__ += int(np.prod(input.shape))
+    module.__flops__ += np.prod(input.shape)
 
 
 def bn_flops_counter_hook(module, input, output):
@@ -47,7 +47,7 @@ def bn_flops_counter_hook(module, input, output):
     batch_flops = np.prod(input.shape)
     if hasattr(module, "affine") and module.affine:
         batch_flops *= 2
-    module.__flops__ += int(batch_flops)
+    module.__flops__ += batch_flops
 
 
 def conv_flops_counter_hook(conv_module, input, output):
@@ -78,7 +78,7 @@ def conv_flops_counter_hook(conv_module, input, output):
 
     overall_flops = overall_conv_flops + bias_flops
 
-    conv_module.__flops__ += int(overall_flops)
+    conv_module.__flops__ += overall_flops
 
 
 def rnn_flops(flops, rnn_module, w_ih, w_hh, input_size):
@@ -136,7 +136,7 @@ def rnn_flops_counter_hook(rnn_module, input, output):
     flops *= seq_length
     if rnn_module.bidirectional:
         flops *= 2
-    rnn_module.__flops__ += int(flops)
+    rnn_module.__flops__ += flops
 
 
 def rnn_cell_flops_counter_hook(rnn_cell_module, input, output):
@@ -153,7 +153,7 @@ def rnn_cell_flops_counter_hook(rnn_cell_module, input, output):
         flops += b_ih.shape[0] + b_hh.shape[0]
 
     flops *= batch_size
-    rnn_cell_module.__flops__ += int(flops)
+    rnn_cell_module.__flops__ += flops
 
 
 def multihead_attention_counter_hook(multihead_attention_module, input, output):
@@ -219,7 +219,7 @@ def multihead_attention_counter_hook(multihead_attention_module, input, output):
     flops += qlen * vdim * (vdim + 1)
 
     flops *= batch_size
-    multihead_attention_module.__flops__ += int(flops)
+    multihead_attention_module.__flops__ += flops
 
 
 CUSTOM_MODULES_MAPPING = {}
